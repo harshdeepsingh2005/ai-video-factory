@@ -43,31 +43,47 @@ jobs:
           python-version: "3.11"
 
       - name: Install Kaggle CLI
-        run: pip install --quiet kaggle==1.6.17
+        run: pip install --quiet --upgrade kaggle
 
       - name: Configure Kaggle credentials & kernel metadata
         env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
         run: |
-          if [ -z "$KAGGLE_USERNAME" ] || [ -z "$KAGGLE_KEY" ]; then
-            echo "ERROR: Set KAGGLE_USERNAME and KAGGLE_KEY in GitHub repository secrets."
+          mkdir -p ~/.kaggle
+          if [ -n "$KAGGLE_API_TOKEN" ]; then
+            printf '%s\n' "$KAGGLE_API_TOKEN" > ~/.kaggle/access_token
+            chmod 600 ~/.kaggle/access_token
+          elif [ -n "$KAGGLE_USERNAME" ] && [ -n "$KAGGLE_KEY" ]; then
+            printf '{"username":"%s","key":"%s"}\n' "$KAGGLE_USERNAME" "$KAGGLE_KEY" > ~/.kaggle/kaggle.json
+            chmod 600 ~/.kaggle/kaggle.json
+          else
+            echo "ERROR: Set KAGGLE_API_TOKEN (or KAGGLE_USERNAME + KAGGLE_KEY) in GitHub secrets."
             exit 1
           fi
-          mkdir -p ~/.kaggle
-          printf '{"username":"%s","key":"%s"}\n' "$KAGGLE_USERNAME" "$KAGGLE_KEY" > ~/.kaggle/kaggle.json
-          chmod 600 ~/.kaggle/kaggle.json
 
-          python3 - << 'EOF'
-          import json, os
+          RESOLVED_USER="${KAGGLE_USERNAME:-}"
+          if [ -z "$RESOLVED_USER" ]; then
+            RESOLVED_USER="$(kaggle config view | awk -F': ' '/username/{print $2}' | tr -d '[:space:]' || true)"
+          fi
+          if [ -z "$RESOLVED_USER" ]; then
+            echo "ERROR: Could not resolve Kaggle username. Set KAGGLE_USERNAME secret in GitHub."
+            exit 1
+          fi
+
+          python3 - << EOF
+          import json
           from pathlib import Path
 
           meta_path = Path("notebooks/kernel-metadata.json")
           meta = json.loads(meta_path.read_text(encoding="utf-8"))
           slug = meta["id"].split("/", 1)[1]
-          meta["id"] = f"{os.environ['KAGGLE_USERNAME']}/{slug}"
+          meta["id"] = "${RESOLVED_USER}/" + slug
           meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
           EOF
 
       - name: Push and start Kaggle GPU kernel
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
         run: kaggle kernels push -p notebooks
