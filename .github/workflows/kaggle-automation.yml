@@ -47,7 +47,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install Kaggle CLI
-        run: pip install --quiet --upgrade kaggle
+        run: pip install --quiet --upgrade kaggle six
 
       - name: Configure Kaggle credentials & kernel metadata
         env:
