@@ -12,9 +12,6 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
-
 from inference.video.ltx_pipeline import free_gpu_memory
 
 REQUIRED_SCENE_KEYS = {
@@ -51,6 +48,9 @@ class ScriptGenerator:
     def _load(self) -> None:
         if self._model is not None:
             return
+        import torch
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+
         use_cuda = torch.cuda.is_available() and self.device != "cpu"
         dtype = torch.float16 if use_cuda else torch.float32
         self._tokenizer = AutoTokenizer.from_pretrained(
@@ -66,6 +66,8 @@ class ScriptGenerator:
             self._model.to("cpu")
 
     def _chat(self, system_prompt: str, user_prompt: str, max_new_tokens: int = 2048) -> str:
+        import torch
+
         self._load()
         messages = [
             {"role": "system", "content": system_prompt},

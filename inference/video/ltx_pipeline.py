@@ -9,15 +9,15 @@ from __future__ import annotations
 import gc
 import os
 from pathlib import Path
-from typing import Optional
-
-import torch
-from diffusers import LTXImageToVideoPipeline, LTXPipeline
-from diffusers.utils import export_to_video, load_image
+from typing import Any, Optional
 
 
 def free_gpu_memory() -> None:
     gc.collect()
+    try:
+        import torch
+    except ImportError:
+        return
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
         torch.cuda.ipc_collect()
@@ -29,18 +29,23 @@ class LTXVideoGenerator:
     def __init__(
         self,
         repo_id: str = "Lightricks/LTX-Video",
-        dtype: torch.dtype = torch.float16,
+        dtype: Optional[Any] = None,
         enable_cpu_offload: bool = True,
         cache_dir: Optional[str] = None,
     ) -> None:
+        if dtype is None:
+            import torch
+            dtype = torch.float16
         self.repo_id = repo_id
         self.dtype = dtype
         self.enable_cpu_offload = enable_cpu_offload
         self.cache_dir = cache_dir or os.environ.get("HF_HOME", "/tmp/hf_cache")
-        self._t2v_pipe: Optional[LTXPipeline] = None
-        self._i2v_pipe: Optional[LTXImageToVideoPipeline] = None
+        self._t2v_pipe: Optional[Any] = None
+        self._i2v_pipe: Optional[Any] = None
 
-    def _configure_memory(self, pipe: LTXPipeline | LTXImageToVideoPipeline) -> None:
+    def _configure_memory(self, pipe: Any) -> None:
+        import torch
+
         if hasattr(pipe, "vae"):
             if hasattr(pipe.vae, "enable_tiling"):
                 pipe.vae.enable_tiling()
@@ -51,7 +56,9 @@ class LTXVideoGenerator:
         elif torch.cuda.is_available():
             pipe.to("cuda")
 
-    def _load_t2v(self) -> LTXPipeline:
+    def _load_t2v(self) -> Any:
+        from diffusers import LTXPipeline
+
         if self._i2v_pipe is not None:
             del self._i2v_pipe
             self._i2v_pipe = None
@@ -65,7 +72,9 @@ class LTXVideoGenerator:
             self._configure_memory(self._t2v_pipe)
         return self._t2v_pipe
 
-    def _load_i2v(self) -> LTXImageToVideoPipeline:
+    def _load_i2v(self) -> Any:
+        from diffusers import LTXImageToVideoPipeline
+
         if self._t2v_pipe is not None:
             del self._t2v_pipe
             self._t2v_pipe = None
@@ -94,6 +103,9 @@ class LTXVideoGenerator:
         init_image_path: Optional[Path] = None,
     ) -> Path:
         """Generate a short MP4 clip via T2V or I2V and return its path."""
+        import torch
+        from diffusers.utils import export_to_video, load_image
+
         output_path = Path(output_path)
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
