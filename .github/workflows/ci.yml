@@ -21,4 +21,4 @@ jobs:
       - name: Compile and run non-GPU unit tests
         run: |
           python -m compileall -q inference rendering storage orchestration scripts tests
-          pytest -v -k "not cuda"
+          python -m pytest -v -k "not cuda"
