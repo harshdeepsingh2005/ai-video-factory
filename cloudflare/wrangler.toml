@@ -1,0 +1,15 @@
+# Cloudflare Workers + D1 + Cron Triggers (Free Tier, NO credit card required).
+# Cloudflare R2 is intentionally omitted because it requires a credit card on file.
+
+name = "ai-video-factory-orchestrator"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ai_video_factory_db"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+[triggers]
+# Daily 06:00 UTC job check/enqueue (counts toward 100k free requests/day)
+crons = ["0 6 * * *"]

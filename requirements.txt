@@ -1,0 +1,37 @@
+# Pinned dependencies for Kaggle T4 (CUDA 12.1 / 12.4) and portable Docker GPU builds.
+# Install PyTorch matching the environment CUDA version in scripts/setup.sh first.
+
+# Core ML / Diffusion / LLM
+transformers==4.47.1
+diffusers==0.32.2
+accelerate==1.2.1
+safetensors==0.4.5
+huggingface-hub==0.27.1
+sentencepiece==0.2.0
+protobuf==5.29.2
+einops==0.8.0
+
+# Quantization & memory efficiency (optional/T4-compatible)
+bitsandbytes==0.45.0
+
+# Audio & Kokoro-82M TTS (CPU-friendly)
+kokoro==0.9.2
+soundfile==0.13.0
+numpy==1.26.4
+scipy==1.14.1
+
+# Media & Image Processing
+Pillow==11.0.0
+imageio==2.36.1
+imageio-ffmpeg==0.5.1
+matplotlib==3.9.4
+
+# Google Drive API (OAuth2 Standard Tier, no GCP billing required)
+google-api-python-client==2.156.0
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.1
+
+# Config, Validation & Testing
+PyYAML==6.0.2
+requests==2.32.3
+pytest==8.3.4

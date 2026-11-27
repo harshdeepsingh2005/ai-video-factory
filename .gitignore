@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+outputs/
+*.mp4
+*.wav
+*.srt
+*.jpg
+*.png
+.env
+.kaggle/
+kaggle.json
+client_secret*.json
+token.json
+.DS_Store

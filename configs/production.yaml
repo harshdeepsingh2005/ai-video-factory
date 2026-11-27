@@ -1,0 +1,44 @@
+# Production pipeline defaults for 10-minute long-form + 3 vertical shorts.
+
+production:
+  target_longform_duration_sec: 600 # ~10 minutes
+  num_shorts: 3
+  target_short_duration_sec: 45
+  longform_resolution: "1920x1080"
+  longform_fps: 24
+  short_resolution: "1080x1920"
+  short_fps: 24
+  video_codec: "libx264"
+  video_crf: 22
+  video_preset: "medium"
+  audio_codec: "aac"
+  audio_bitrate: "192k"
+  audio_sample_rate: 44100
+  target_lufs: -14.0
+  max_true_peak_db: -1.5
+
+  # Hybrid visual mix: only selected hero scenes use AI video diffusion;
+  # remaining scenes use SD 1.5 stills + Ken Burns + charts/diagrams.
+  max_ai_video_clips_per_job: 6
+  ai_video_clip_duration_sec: 2.0
+
+  # Quality Control thresholds
+  qc:
+    min_longform_duration_sec: 30 # Overridden by job config; default safety floor for test runs
+    max_black_frame_ratio: 0.15
+    require_audio_stream: true
+    require_subtitles: true
+
+  # Google Drive target hierarchy
+  drive:
+    root_folder: "AI-Video-Factory"
+    production_folder: "Production"
+    subfolders:
+      - "Long-Form"
+      - "Shorts"
+      - "Thumbnails"
+      - "Narration"
+      - "Subtitles"
+      - "Scripts"
+      - "Assets"
+      - "Manifest"

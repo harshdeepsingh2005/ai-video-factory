@@ -1,0 +1,43 @@
+# Verified ₹0 / $0 Free-Tier Quotas & Guardrails.
+# The pipeline MUST respect these limits and pause/checkpoint rather than failing or upgrading.
+
+kaggle:
+  gpu_hardware: "2x NVIDIA Tesla T4 (16 GB VRAM each)"
+  p100_status: "RETIRED (2026-09-15)"
+  weekly_gpu_hours: 30
+  quota_reset: "Saturday 00:00 UTC"
+  max_session_hours: 12
+  idle_timeout_minutes: 20
+  working_dir_limit_gb: 19.5
+  safe_checkpoint_budget_hours: 10.5 # Stop & checkpoint before 12h hard kill
+  requires_credit_card: false
+
+google_colab_free:
+  gpu_hardware: "1x NVIDIA Tesla T4 (16 GB VRAM, subject to availability)"
+  max_session_hours: 12 # Not guaranteed; dynamic cooldowns apply
+  idle_timeout_minutes: 90
+  requires_browser_open: true
+  requires_credit_card: false
+
+huggingface_zerogpu:
+  free_logged_in_minutes_per_day: 3.5
+  default_reservation_sec: 60
+  suitable_for_batch_production: false
+  requires_credit_card: false
+
+cloudflare_free:
+  workers_requests_per_day: 100000
+  workers_cpu_ms_per_invocation: 10
+  workers_memory_mb: 128
+  d1_total_storage_gb: 5
+  d1_max_db_size_mb: 500
+  d1_rows_read_per_day: 5000000
+  d1_rows_written_per_day: 100000
+  cron_triggers_max: 5
+  r2_excluded: true
+  r2_exclusion_reason: "Requires credit card / billing activation on file"
+
+google_drive_free:
+  storage_quota_gb: 15
+  api_tier: "GCP Standard Tier (no billing account required)"
+  requires_credit_card: false
