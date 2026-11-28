@@ -21,16 +21,21 @@ else
 fi
 
 # 3. Install pinned Python dependencies
-echo "[3/4] Installing pinned Python dependencies from requirements.txt..."
+echo "[3/4] Installing Python dependencies from requirements.txt..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
-pip install -q --no-cache-dir -r "$REPO_ROOT/requirements.txt"
+python3 -m pip install --no-cache-dir --disable-pip-version-check -r "$REPO_ROOT/requirements.txt"
 
-# 4. Verify PyTorch CUDA & FFmpeg
-echo "[4/4] Verifying PyTorch CUDA and FFmpeg..."
+# 4. Verify PyTorch CUDA, key packages, and FFmpeg
+echo "[4/4] Verifying PyTorch CUDA, Kokoro, Diffusers, and FFmpeg..."
 python3 - << 'EOF'
 import shutil
 import torch
+import kokoro
+import soundfile
+import diffusers
+import transformers
+import googleapiclient
 
 print(f"PyTorch: {torch.__version__}")
 print(f"CUDA available: {torch.cuda.is_available()}")
